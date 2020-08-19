@@ -9,6 +9,7 @@ import com.jiang.eduservice.entity.TeacherQuery;
 import com.jiang.eduservice.service.EduTeacherService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class EduTeacherController {
 
     @ApiOperation(value = "逻辑删除讲师")
     @DeleteMapping("{id}")
-    public R removeTeacher(@PathVariable String id){
+    public R removeTeacher(@ApiParam(name="id",value = "讲师id",required = true) @PathVariable String id){
         boolean flag = service.removeById(id);
         if(flag){
            return R.ok();
@@ -95,7 +96,8 @@ public class EduTeacherController {
         if(!StringUtils.isEmpty(end)) {
             wrapper.le("gmt_create",end);
         }
-
+        //排序
+        wrapper.orderByDesc("gmt_modified");//gmtModified
         //调用方法实现条件查询分页
         service.page(pageTeacher,wrapper);
 
@@ -116,6 +118,23 @@ public class EduTeacherController {
         }
     }
 
+    //根据讲师id进行查询
+    @GetMapping("getTeacher/{id}")
+    public R getTeacher(@PathVariable String id) {
+        EduTeacher eduTeacher = service.getById(id);
+        return R.ok().data("teacher",eduTeacher);
+    }
+
+    //讲师修改功能
+    @PostMapping("updateTeacher")
+    public R updateTeacher(@RequestBody EduTeacher eduTeacher) {
+        boolean flag = service.updateById(eduTeacher);
+        if(flag) {
+            return R.ok();
+        } else {
+            return R.error();
+        }
+    }
 
 }
 
